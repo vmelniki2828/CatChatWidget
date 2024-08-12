@@ -28,32 +28,32 @@ const Widget = () => {
 
   useEffect(() => {
     if (!socket) return;
-  
+
     // Подключаемся к WebSocket
     socket.on('receive_message', message => {
       console.log('Получено сообщение:', message);
       // Обновляем состояние сообщений
       setMessages(prevMessages => [...prevMessages, message]);
     });
-  
+
     // Очистка при размонтировании
     return () => {
       socket.off('receive_message');
     };
-  }, [socket]); 
+  }, [socket]);
 
   const joinChat = () => {
     if (username.trim() !== '') {
       socket.emit('join_user', username.trim(), usermail.trim());
       // Убедитесь, что идентификатор комнаты получен и сохранен правильно
-      socket.on('roomCreated', (roomId) => {
+      socket.on('roomCreated', roomId => {
         console.log('Room created:', roomId);
         setRoomId(roomId); // Установите идентификатор комнаты в состоянии
       });
       setIsJoined(true);
     }
   };
-  
+
   const sendMessage = () => {
     if (message.trim() !== '') {
       socket.emit('send_message', {
@@ -86,22 +86,23 @@ const Widget = () => {
         <div>
           <TextArea>
             {messages.map(({ sender, message, timestamp }, index) => {
-              return(
-              <ChatDiv key={index} isClient={sender === username}>
-                <MessageWrap isClient={sender === username}>
-                  {/* Замените этот блок с учетом вашей логики для отображения фотографий */}
-                  <div>
-                    {sender}
-                    <MessageBox isClient={sender === username}>
-                      <ChatText>{message}</ChatText>
-                      <MessageTime>
-                        {new Date(timestamp).toLocaleTimeString()}
-                      </MessageTime>
-                    </MessageBox>
-                  </div>
-                </MessageWrap>
-              </ChatDiv>
-            )})}
+              return (
+                <ChatDiv key={index} isClient={sender === username}>
+                  <MessageWrap isClient={sender === username}>
+                    {/* Замените этот блок с учетом вашей логики для отображения фотографий */}
+                    <div>
+                      {sender}
+                      <MessageBox isClient={sender === username}>
+                        <ChatText>{message}</ChatText>
+                        <MessageTime>
+                          {new Date(timestamp).toLocaleTimeString()}
+                        </MessageTime>
+                      </MessageBox>
+                    </div>
+                  </MessageWrap>
+                </ChatDiv>
+              );
+            })}
           </TextArea>
           <div style={{ display: 'flex' }}>
             <input
