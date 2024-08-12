@@ -24,34 +24,40 @@ const Widget = () => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [isJoined, setIsJoined] = useState(false);
+  const [roomId, setRoomId] = useState('');
 
   useEffect(() => {
+    if (!socket) return;
+  
     // Подключаемся к WebSocket
     socket.on('receive_message', message => {
       console.log('Получено сообщение:', message);
       // Обновляем состояние сообщений
       setMessages(prevMessages => [...prevMessages, message]);
     });
-
+  
     // Очистка при размонтировании
     return () => {
       socket.off('receive_message');
     };
-  }, []);
+  }, [socket]); 
 
   const joinChat = () => {
-    console.log(username, usermail, 'Ya tut');
     if (username.trim() !== '') {
       socket.emit('join_user', username.trim(), usermail.trim());
+      // Убедитесь, что идентификатор комнаты получен и сохранен правильно
+      socket.on('roomCreated', (roomId) => {
+        console.log('Room created:', roomId);
+        setRoomId(roomId); // Установите идентификатор комнаты в состоянии
+      });
       setIsJoined(true);
     }
   };
-
+  
   const sendMessage = () => {
     if (message.trim() !== '') {
-      // Отправляем сообщение
       socket.emit('send_message', {
-        roomId: `room_${socket.id}`, // Пример использования идентификатора комнаты
+        roomId: roomId, // Используйте правильный идентификатор комнаты
         sender: username,
         messageText: message,
       });
