@@ -16,7 +16,7 @@ import {
   UserImg,
   MessageTime,
 } from './Widget.styled';
-import { socket } from 'services/API';
+import { socket } from 'services/API'; // Убедитесь, что у вас правильно настроен путь
 
 const Widget = () => {
   const [username, setUsername] = useState('');
@@ -26,49 +26,39 @@ const Widget = () => {
   const [isJoined, setIsJoined] = useState(false);
 
   useEffect(() => {
+    // Подключаемся к WebSocket
+    socket.on('receive_message', message => {
+      console.log('Получено сообщение:', message);
+      // Обновляем состояние сообщений
+      setMessages(prevMessages => [...prevMessages, message]);
+    });
 
+    // Очистка при размонтировании
+    return () => {
+      socket.off('receive_message');
+    };
   }, []);
 
   const joinChat = () => {
-    console.log(username,usermail, "Ya tut")
+    console.log(username, usermail, 'Ya tut');
     if (username.trim() !== '') {
       socket.emit('join_user', username.trim(), usermail.trim());
+      setIsJoined(true);
     }
-    // if (username.trim() !== '' && usermail.trim() !== '') {
-    //   if (navigator.geolocation) {
-    //     navigator.geolocation.getCurrentPosition(
-    //       position => {
-    //         const location = `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`;
-    //         // Отправляем данные на сервер
-    //         socket.emit('join', username.trim(), usermail.trim(), location);
-    //       },
-    //       error => {
-    //         console.error('Ошибка получения геолокации', error);
-    //         alert(
-    //           'Не удалось получить местоположение. Пожалуйста, разрешите доступ к местоположению.'
-    //         );
-    //       }
-    //     );
-    //   } else {
-    //     alert('Геолокация не поддерживается вашим браузером.');
-    //   }
-    // }
   };
 
   const sendMessage = () => {
-    // if (message.trim() !== '' && managerSocketId) {
-    //   socket.emit('private_message', {
-    //     recipient: managerSocketId,
-    //     message: message.trim(),
-    //     sender: username,
-    //   });
-    //   setMessages(prevMessages => [
-    //     ...prevMessages,
-    //     { sender: username, message },
-    //   ]);
-    //   setMessage('');
-    // }
+    if (message.trim() !== '') {
+      // Отправляем сообщение
+      socket.emit('send_message', {
+        roomId: `room_${socket.id}`, // Пример использования идентификатора комнаты
+        sender: username,
+        messageText: message,
+      });
+      setMessage(''); // Очищаем поле ввода
+    }
   };
+
   return (
     <WidgetCon>
       <ChatName>Приватный чат</ChatName>
@@ -89,35 +79,23 @@ const Widget = () => {
       ) : (
         <div>
           <TextArea>
-            {messages.map(({ sender, message, timestamp }, index) => (
+            {messages.map(({ sender, message, timestamp }, index) => {
+              return(
               <ChatDiv key={index} isClient={sender === username}>
                 <MessageWrap isClient={sender === username}>
-                  {/* {!uPhoto && (
-                    <UserImg
-                      src={userPhoto}
-                      alt="UserImg"
-                      isClient={sender === username}
-                    />
-                  )}
-                  {uPhoto && (
-                    <UserImg
-                      src={`http${
-                        process.env.REACT_APP_SECURE === 'true' ? 's' : ''
-                      }://${process.env.REACT_APP_BACKEND_URL}${uPhoto}`}
-                      alt="UserImg"
-                      isClient={sender === username}
-                    />
-                  )} */}
+                  {/* Замените этот блок с учетом вашей логики для отображения фотографий */}
                   <div>
                     {sender}
                     <MessageBox isClient={sender === username}>
                       <ChatText>{message}</ChatText>
-                      <MessageTime>{timestamp}</MessageTime>
+                      <MessageTime>
+                        {new Date(timestamp).toLocaleTimeString()}
+                      </MessageTime>
                     </MessageBox>
                   </div>
                 </MessageWrap>
               </ChatDiv>
-            ))}
+            )})}
           </TextArea>
           <div style={{ display: 'flex' }}>
             <input
@@ -132,8 +110,7 @@ const Widget = () => {
               placeholder="Введите сообщение"
             />
             <SendBtn onClick={sendMessage}>
-              {/* <IconButton src={Vec} alt="Vec" /> */}
-              <p>asdasdads</p>
+              <p>Отправить</p>
             </SendBtn>
           </div>
         </div>
