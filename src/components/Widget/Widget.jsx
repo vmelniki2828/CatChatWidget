@@ -25,35 +25,44 @@ const Widget = () => {
   const [messages, setMessages] = useState([]);
   const [isJoined, setIsJoined] = useState(false);
   const [roomId, setRoomId] = useState('');
+  const [error, setError] = useState(''); // Добавляем состояние для хранения ошибки
 
   useEffect(() => {
     if (!socket) return;
-  
+
     // Подключаемся к WebSocket
     socket.on('receive_message', message => {
       console.log('Получено сообщение:', message);
       // Обновляем состояние сообщений
       setMessages(prevMessages => [...prevMessages, message]);
     });
-  
+
+    // Обработка ошибки, если нет доступных менеджеров
+    socket.on('noManagersAvailable', errorMessage => {
+      alert(errorMessage); // Используем alert для отображения сообщения об ошибке
+      setIsJoined(false); // Сбрасываем состояние присоединения
+    });
+
     // Очистка при размонтировании
     return () => {
       socket.off('receive_message');
+      socket.off('noManagersAvailable');
     };
-  }, [socket]); 
+  }, [socket]);
 
   const joinChat = () => {
     if (username.trim() !== '') {
       socket.emit('join_user', username.trim(), usermail.trim());
+
       // Убедитесь, что идентификатор комнаты получен и сохранен правильно
-      socket.on('roomCreated', (roomId) => {
+      socket.on('roomCreated', roomId => {
         console.log('Room created:', roomId);
         setRoomId(roomId); // Установите идентификатор комнаты в состоянии
+        setIsJoined(true); // Устанавливаем состояние присоединения
       });
-      setIsJoined(true);
     }
   };
-  
+
   const sendMessage = () => {
     if (message.trim() !== '') {
       socket.emit('send_message', {
@@ -85,8 +94,7 @@ const Widget = () => {
       ) : (
         <div>
           <TextArea>
-            {messages.map(({ sender, message, timestamp }, index) => {
-              return(
+            {messages.map(({ sender, message, timestamp }, index) => (
               <ChatDiv key={index} isClient={sender === username}>
                 <MessageWrap isClient={sender === username}>
                   {/* Замените этот блок с учетом вашей логики для отображения фотографий */}
@@ -101,7 +109,7 @@ const Widget = () => {
                   </div>
                 </MessageWrap>
               </ChatDiv>
-            )})}
+            ))}
           </TextArea>
           <div style={{ display: 'flex' }}>
             <input
