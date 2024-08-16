@@ -50,9 +50,35 @@ const Widget = () => {
     };
   }, [socket]);
 
-  const joinChat = () => {
+  const getUserData = async () => {
+    const userAgent = navigator.userAgent;
+    const language = navigator.language;
+    const referrer = document.referrer;
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const timestamp = new Date().toLocaleString();
+
+    // Fetch IP and location using an external API (e.g., ipify, ipinfo)
+    const response = await fetch('https://ipapi.co/json/'); // Example using ipapi
+    const { ip, city, region, country, latitude, longitude } =
+      await response.json();
+
+    return {
+      userAgent,
+      language,
+      referrer,
+      timezone,
+      timestamp,
+      ip,
+      location: `${city}, ${region}, ${country}`,
+      coordinates: { latitude, longitude },
+    };
+  };
+
+  const joinChat = async () => {
     if (username.trim() !== '') {
-      socket.emit('join_user', username.trim(), usermail.trim());
+      const userData = await getUserData();
+      console.log(userData)
+      socket.emit('join_user',  { username: username.trim(), email: usermail.trim(), otherInfo : userData });
 
       // Убедитесь, что идентификатор комнаты получен и сохранен правильно
       socket.on('roomCreated', roomId => {
