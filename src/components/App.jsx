@@ -1,5 +1,5 @@
-import Widget from './Widget/Widget';
+import WidgetIcon from './Widget/WidgetIcon';
 
 export const App = () => {
-  return <Widget />;
+  return <WidgetIcon />;
 };
