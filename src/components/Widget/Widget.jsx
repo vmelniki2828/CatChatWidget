@@ -15,6 +15,8 @@ import {
   MessageWrap,
   UserImg,
   MessageTime,
+  InfoWrap,
+  CloseButton,
 } from './Widget.styled';
 import { socket } from 'services/API'; // Убедитесь, что у вас правильно настроен путь
 
@@ -77,8 +79,12 @@ const Widget = () => {
   const joinChat = async () => {
     if (username.trim() !== '') {
       const userData = await getUserData();
-      console.log(userData)
-      socket.emit('join_user',  { username: username.trim(), email: usermail.trim(), otherInfo : userData });
+      console.log(userData);
+      socket.emit('join_user', {
+        username: username.trim(),
+        email: usermail.trim(),
+        otherInfo: userData,
+      });
 
       // Убедитесь, что идентификатор комнаты получен и сохранен правильно
       socket.on('roomCreated', roomId => {
@@ -100,9 +106,25 @@ const Widget = () => {
     }
   };
 
+  const handleDisconnectChat = async () => {
+    if (roomId) {
+      socket.emit('disconnect_chat', roomId);
+      console.log('XXX');
+      setIsJoined(false);
+      setMessages([]);
+      setRoomId('');
+    }
+  };
   return (
     <WidgetCon>
-      <ChatName>Приватный чат</ChatName>
+      <InfoWrap>
+        {' '}
+        <ChatName>
+          Приватный чат 
+        </ChatName>
+        <CloseButton onClick={handleDisconnectChat}>X</CloseButton>
+      </InfoWrap>
+
       {!isJoined ? (
         <JoinWrap>
           <WidgetInputName
