@@ -18,6 +18,7 @@ border-radius: 2%;
 export const ChatName = styled.h2`
 text-align: center;
 font-size: 12px;
+margin:0;
 `;
 
 export const JoinWrap = styled.div`
@@ -122,4 +123,18 @@ font-size: 8px;
 font-weight: 400;
 line-height: 10px;
 text-align: right;
+`;
+
+export const InfoWrap = styled.div`
+display: flex;
+width:350px;
+height: 40px;
+align-items: center;
+    justify-content: space-around;
+`;
+
+export const CloseButton = styled.p`
+margin:0;
+color: red;
+cursor: pointer;
 `;
