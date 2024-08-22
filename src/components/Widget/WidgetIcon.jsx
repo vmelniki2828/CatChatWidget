@@ -4,11 +4,13 @@ import Widget from './Widget';
 
 const WidgetIcon = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const modalRef = useRef(null); // Создаем ref для модального окна
+  const modalRef = useRef(null); 
 
   const openModal = () => {
-    setIsModalOpen(true);
-    document.body.style.overflow = 'hidden';
+    if (!isModalOpen) { 
+      setIsModalOpen(true);
+      document.body.style.overflow = 'hidden';
+    }
   };
 
   const closeModal = () => {
@@ -34,7 +36,7 @@ const WidgetIcon = () => {
 
   return (
     <div>
-      <WidgetIconButton onClick={openModal}>
+      <WidgetIconButton onClick={openModal} disabled={isModalOpen}> 
         <WidgetIc />
       </WidgetIconButton>
       {isModalOpen && (
