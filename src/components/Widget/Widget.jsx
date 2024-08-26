@@ -30,38 +30,39 @@ const Widget = () => {
   const [error, setError] = useState(''); // Добавляем состояние для хранения ошибки
 
   useEffect(() => {
+    console.log('Socket:', socket);
+  
+    if (!socket) return;
+  
     const savedUsername = sessionStorage.getItem('username');
     const savedUsermail = sessionStorage.getItem('usermail');
     const savedRoomId = sessionStorage.getItem('roomId');
     const savedMessages = JSON.parse(sessionStorage.getItem('messages')) || [];
-
+  
     if (savedRoomId) {
+      console.log('Rejoining room:', savedRoomId);
       setUsername(savedUsername);
       setUsermail(savedUsermail);
       setRoomId(savedRoomId);
       setMessages(savedMessages);
       setIsJoined(true);
-
-      // Повторное подключение к комнате
+  
       socket.emit('rejoin_user', { roomId: savedRoomId });
-
+  
       socket.on('roomRejoined', () => {
-        console.log('Rejoined room:', savedRoomId);
+        console.log('Successfully rejoined room:', savedRoomId);
       });
     }
-
-    if (!socket) return;
-
-    // Обработка новых сообщений
+  
     socket.on('receive_message', message => {
-      console.log('Новое сообщение:', message);
+      console.log('Received new message:', message);
       setMessages(prevMessages => {
         const updatedMessages = [...prevMessages, message];
-        sessionStorage.setItem('messages', JSON.stringify(updatedMessages)); // Сохранение сообщений
+        sessionStorage.setItem('messages', JSON.stringify(updatedMessages));
         return updatedMessages;
       });
     });
-
+  
     return () => {
       socket.off('receive_message');
       socket.off('roomRejoined');
