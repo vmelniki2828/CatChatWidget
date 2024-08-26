@@ -30,27 +30,45 @@ const Widget = () => {
   const [error, setError] = useState(''); // Добавляем состояние для хранения ошибки
 
   useEffect(() => {
+    const savedUsername = sessionStorage.getItem('username');
+    const savedUsermail = sessionStorage.getItem('usermail');
+    const savedRoomId = sessionStorage.getItem('roomId');
+    const savedMessages = JSON.parse(sessionStorage.getItem('messages')) || [];
+
+    if (savedRoomId) {
+      setUsername(savedUsername);
+      setUsermail(savedUsermail);
+      setRoomId(savedRoomId);
+      setMessages(savedMessages);
+      setIsJoined(true);
+
+      // Повторное подключение к комнате
+      socket.emit('rejoin_user', { roomId: savedRoomId });
+
+      socket.on('roomRejoined', () => {
+        console.log('Rejoined room:', savedRoomId);
+      });
+    }
+
     if (!socket) return;
 
-    // Подключаемся к WebSocket
+    // Обработка новых сообщений
     socket.on('receive_message', message => {
-      console.log('Получено сообщение:', message);
-      // Обновляем состояние сообщений
-      setMessages(prevMessages => [...prevMessages, message]);
+      console.log('Новое сообщение:', message);
+      setMessages(prevMessages => {
+        const updatedMessages = [...prevMessages, message];
+        sessionStorage.setItem('messages', JSON.stringify(updatedMessages)); // Сохранение сообщений
+        return updatedMessages;
+      });
     });
 
-    // Обработка ошибки, если нет доступных менеджеров
-    socket.on('noManagersAvailable', errorMessage => {
-      alert(errorMessage); // Используем alert для отображения сообщения об ошибке
-      setIsJoined(false); // Сбрасываем состояние присоединения
-    });
-
-    // Очистка при размонтировании
     return () => {
       socket.off('receive_message');
-      socket.off('noManagersAvailable');
+      socket.off('roomRejoined');
     };
   }, [socket]);
+
+
 
   const getUserData = async () => {
     const userAgent = navigator.userAgent;
@@ -91,6 +109,10 @@ const Widget = () => {
         console.log('Room created:', roomId);
         setRoomId(roomId); // Установите идентификатор комнаты в состоянии
         setIsJoined(true); // Устанавливаем состояние присоединения
+        sessionStorage.setItem('username', username.trim());
+        sessionStorage.setItem('usermail', usermail.trim());
+        sessionStorage.setItem('roomId', roomId);
+        sessionStorage.setItem('messages', JSON.stringify([]));
       });
     }
   };
@@ -109,7 +131,8 @@ const Widget = () => {
   const handleDisconnectChat = async () => {
     if (roomId) {
       socket.emit('disconnect_chat', roomId);
-      console.log('XXX');
+     
+      sessionStorage.clear();
       setIsJoined(false);
       setMessages([]);
       setRoomId('');
