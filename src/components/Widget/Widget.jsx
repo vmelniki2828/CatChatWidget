@@ -91,6 +91,10 @@ const Widget = () => {
         console.log('Room created:', roomId);
         setRoomId(roomId); // Установите идентификатор комнаты в состоянии
         setIsJoined(true); // Устанавливаем состояние присоединения
+        sessionStorage.setItem('username', username.trim());
+        sessionStorage.setItem('usermail', usermail.trim());
+        sessionStorage.setItem('roomId', roomId);
+        sessionStorage.setItem('messages', JSON.stringify([]));
       });
     }
   };
@@ -110,6 +114,10 @@ const Widget = () => {
     if (roomId) {
       socket.emit('disconnect_chat', roomId);
       console.log('XXX');
+      sessionStorage.removeItem('username');
+      sessionStorage.removeItem('usermail');
+      sessionStorage.removeItem('roomId');
+      sessionStorage.removeItem('messages');
       setIsJoined(false);
       setMessages([]);
       setRoomId('');
