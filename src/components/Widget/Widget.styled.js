@@ -1,4 +1,7 @@
 import styled from 'styled-components';
+import { RxCross2 } from "react-icons/rx";
+import { IoRemoveOutline } from "react-icons/io5";
+import { IoSendOutline } from "react-icons/io5";
 
 export const WidgetCon = styled.div`
 width: 350px;
@@ -60,7 +63,7 @@ width: 35px;
 height: 20px;
 right: 15px;
   bottom: 10px;
-  padding: 10px 20px;
+
   border-radius: 5px;
   border: none;
   background-color: #0A1019;
@@ -71,11 +74,11 @@ right: 15px;
   justify-content: center;
   position:absolute;
 `;
- export const IconButton = styled.img`
- width: 9px;
-height: 8px;
+ export const IconButton = styled(IoSendOutline)`
+ width: 20px;
+height: 16px;
 padding-left:5px;
-
+color: white;
  `;
 
  export const ChatText = styled.p`
@@ -127,14 +130,32 @@ text-align: right;
 
 export const InfoWrap = styled.div`
 display: flex;
-width:350px;
+width: 330px;
 height: 40px;
 align-items: center;
-    justify-content: space-around;
+justify-content: space-between;
 `;
 
-export const CloseButton = styled.p`
+export const CloseButton = styled(RxCross2)`
+width: 20px;
+height: 20px;
 margin:0;
-color: red;
+color: black;
 cursor: pointer;
+&:hover {
+    color: red;
+  }
+`;
+
+export const CollapseButton = styled(IoRemoveOutline)`
+width: 20px;
+height: 20px;
+margin:0;
+padding-right: 10px;
+color: black;
+cursor: pointer;
+&:hover {
+    color: gray;
+  }
+
 `;
