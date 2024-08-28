@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import io from 'socket.io-client';
+
 import {
   WidgetCon,
   ChatName,
@@ -17,6 +17,7 @@ import {
   MessageTime,
   InfoWrap,
   CloseButton,
+  CollapseButton,
 } from './Widget.styled';
 import { socket } from 'services/API'; // Убедитесь, что у вас правильно настроен путь
 
@@ -27,18 +28,18 @@ const Widget = () => {
   const [messages, setMessages] = useState([]);
   const [isJoined, setIsJoined] = useState(false);
   const [roomId, setRoomId] = useState('');
-  const [error, setError] = useState(''); // Добавляем состояние для хранения ошибки
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
     console.log('Socket:', socket);
-  
+
     if (!socket) return;
-  
+
     const savedUsername = sessionStorage.getItem('username');
     const savedUsermail = sessionStorage.getItem('usermail');
     const savedRoomId = sessionStorage.getItem('roomId');
     const savedMessages = JSON.parse(sessionStorage.getItem('messages')) || [];
-  
+
     if (savedRoomId) {
       console.log('Rejoining room:', savedRoomId);
       setUsername(savedUsername);
@@ -46,14 +47,14 @@ const Widget = () => {
       setRoomId(savedRoomId);
       setMessages(savedMessages);
       setIsJoined(true);
-  
+
       socket.emit('rejoin_user', { roomId: savedRoomId });
-  
+
       socket.on('roomRejoined', () => {
         console.log('Successfully rejoined room:', savedRoomId);
       });
     }
-  
+
     socket.on('receive_message', message => {
       console.log('Received new message:', message);
       setMessages(prevMessages => {
@@ -62,14 +63,12 @@ const Widget = () => {
         return updatedMessages;
       });
     });
-  
+
     return () => {
       socket.off('receive_message');
       socket.off('roomRejoined');
     };
   }, [socket]);
-
-
 
   const getUserData = async () => {
     const userAgent = navigator.userAgent;
@@ -132,21 +131,32 @@ const Widget = () => {
   const handleDisconnectChat = async () => {
     if (roomId) {
       socket.emit('disconnect_chat', roomId);
-     
+
       sessionStorage.clear();
       setIsJoined(false);
       setMessages([]);
       setRoomId('');
     }
   };
+
+  const handleCollapse = () => {
+    setIsCollapsed(prevState => !prevState);
+  };
+  
+
   return (
-    <WidgetCon>
+    <WidgetCon  style={{
+      height: isCollapsed ? '0' : 'auto',
+      overflow: 'hidden',
+      transition: 'height 0.3s ease',
+    }} >
       <InfoWrap>
         {' '}
-        <ChatName>
-          Приватный чат 
-        </ChatName>
-        <CloseButton onClick={handleDisconnectChat}>X</CloseButton>
+        <ChatName>Приватный чат</ChatName>
+        <div>
+          <CollapseButton onClick={handleCollapse} />
+          <CloseButton onClick={handleDisconnectChat} />
+        </div>
       </InfoWrap>
 
       {!isJoined ? (
@@ -196,7 +206,7 @@ const Widget = () => {
               placeholder="Введите сообщение"
             />
             <SendBtn onClick={sendMessage}>
-              <p>Отправить</p>
+              <IconButton />
             </SendBtn>
           </div>
         </div>
