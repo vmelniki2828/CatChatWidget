@@ -21,14 +21,14 @@ import {
 } from './Widget.styled';
 import { socket } from 'services/API'; // Убедитесь, что у вас правильно настроен путь
 
-const Widget = () => {
+const Widget = ({ onClose }) => {
   const [username, setUsername] = useState('');
   const [usermail, setUsermail] = useState('');
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [isJoined, setIsJoined] = useState(false);
   const [roomId, setRoomId] = useState('');
-  const [isCollapsed, setIsCollapsed] = useState(false);
+
 
   useEffect(() => {
     console.log('Socket:', socket);
@@ -136,20 +136,17 @@ const Widget = () => {
       setIsJoined(false);
       setMessages([]);
       setRoomId('');
+      onClose();
     }
   };
 
   const handleCollapse = () => {
-    setIsCollapsed(prevState => !prevState);
+    onClose();
   };
   
 
   return (
-    <WidgetCon  style={{
-      height: isCollapsed ? '0' : 'auto',
-      overflow: 'hidden',
-      transition: 'height 0.3s ease',
-    }} >
+    <WidgetCon>
       <InfoWrap>
         {' '}
         <ChatName>Приватный чат</ChatName>
