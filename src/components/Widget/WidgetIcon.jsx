@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { WidgetIc, WidgetIconButton } from './WidgetIcon.styled';
 import Widget from './Widget';

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test MyWidget</title>
+</head>
+
+<body>
+  <script>
+    (function() {
+      var widgetContainer = document.createElement('div');
+      widgetContainer.id = 'my-react-widget';
+      document.body.appendChild(widgetContainer);
+  
+      var script = document.createElement('script');
+      script.src = '../dist/widget-bundle.js'; // URL к скомпилированному JS-файлу
+      script.async = true;
+      script.onload = function() {
+        console.log('React widget loaded');
+      };
+      document.head.appendChild(script);
+    })();
+  </script>
+</body>
+
+</html>

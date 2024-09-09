@@ -19,7 +19,7 @@ import {
   CloseButton,
   CollapseButton,
 } from './Widget.styled';
-import { socket } from 'services/API'; // Убедитесь, что у вас правильно настроен путь
+import { socket } from '../../services/API'; // Убедитесь, что у вас правильно настроен путь
 
 const Widget = ({ onClose }) => {
   const [username, setUsername] = useState('');
