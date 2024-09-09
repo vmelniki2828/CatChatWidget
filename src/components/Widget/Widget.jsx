@@ -21,6 +21,9 @@ import {
   ClientInfoWrap,
   WidgetInput,
   WrapArea,
+  WidgetSettingsIcon,
+  WidgetUserName,
+  WidgetUserInf,
 } from './Widget.styled';
 import { socket } from '../../services/API'; // Убедитесь, что у вас правильно настроен путь
 
@@ -151,6 +154,7 @@ const Widget = ({ onClose }) => {
   return (
     <WidgetCon>
       <InfoWrap>
+        <WidgetSettingsIcon/>
         <div>
           <CollapseButton onClick={handleCollapse} />
           <CloseButton onClick={handleDisconnectChat} />
@@ -176,8 +180,10 @@ const Widget = ({ onClose }) => {
           
           <TextArea>
           <ClientInfoWrap>
-            <p>Name:{username}</p>
-            <p>Email:{usermail}</p>
+            <WidgetUserName>Name:</WidgetUserName>
+            <WidgetUserInf>{username}</WidgetUserInf>
+            <WidgetUserName>E-mail:</WidgetUserName>
+            <WidgetUserInf>{usermail}</WidgetUserInf>
           </ClientInfoWrap>
             {messages.map(({ sender, message, timestamp }, index) => (
               <ChatDiv key={index} isClient={sender === username}>

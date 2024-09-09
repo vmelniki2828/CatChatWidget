@@ -2,10 +2,12 @@ import styled from 'styled-components';
 import { RxCross2 } from "react-icons/rx";
 import { IoRemoveOutline } from "react-icons/io5";
 import { IoSendOutline } from "react-icons/io5";
+import { BsThreeDots } from "react-icons/bs";
+
 
 export const WidgetCon = styled.div`
 width: 340px;
-height:600px;
+height:650px;
 background-color: #fff;
 border:1px solid #ccc;
 position: fixed;
@@ -68,7 +70,7 @@ export const SendBtn = styled.button`
 width: 35px;
 height: 20px;
 right: 25px;
-  bottom: 20px;
+  bottom: 26px;
 
   border-radius: 5px;
   border: none;
@@ -137,9 +139,10 @@ text-align: right;
 export const InfoWrap = styled.div`
 display: flex;
 width: 330px;
-height: 40px;
+height: 150px;
 align-items: center;
-justify-content: flex-end;
+justify-content: space-between;
+border-bottom: 1px solid #B7B0C7;
 `;
 
 export const CloseButton = styled(RxCross2)`
@@ -181,4 +184,30 @@ height: 30px;
 border-radius: 10px;
 border: 1px solid #B7B0C7;
 margin-bottom:20px;
+`;
+
+export const WidgetSettingsIcon = styled(BsThreeDots)`
+
+`;
+
+export const WidgetUserName = styled.p`
+font-family: 'Geologica';
+font-style: normal;
+font-weight: 400;
+font-size: 10px;
+line-height: 12px;
+color: #B7B0C7;
+
+
+`;
+
+export const WidgetUserInf = styled.p`
+font-family: 'Geologica';
+font-style: normal;
+font-weight: 300;
+font-size: 10px;
+line-height: 12px;
+
+color: #0A1019;
+
 `;
