@@ -18,6 +18,9 @@ import {
   InfoWrap,
   CloseButton,
   CollapseButton,
+  ClientInfoWrap,
+  WidgetInput,
+  WrapArea,
 } from './Widget.styled';
 import { socket } from '../../services/API'; // Убедитесь, что у вас правильно настроен путь
 
@@ -148,8 +151,6 @@ const Widget = ({ onClose }) => {
   return (
     <WidgetCon>
       <InfoWrap>
-        {' '}
-        <ChatName>Приватный чат</ChatName>
         <div>
           <CollapseButton onClick={handleCollapse} />
           <CloseButton onClick={handleDisconnectChat} />
@@ -171,14 +172,20 @@ const Widget = ({ onClose }) => {
           <JoinButton onClick={joinChat}>Присоединиться</JoinButton>
         </JoinWrap>
       ) : (
-        <div>
+        <WrapArea>
+          
           <TextArea>
+          <ClientInfoWrap>
+            <p>Name:{username}</p>
+            <p>Email:{usermail}</p>
+          </ClientInfoWrap>
             {messages.map(({ sender, message, timestamp }, index) => (
               <ChatDiv key={index} isClient={sender === username}>
                 <MessageWrap isClient={sender === username}>
                   {/* Замените этот блок с учетом вашей логики для отображения фотографий */}
                   <div>
                     {sender}
+                    
                     <MessageBox isClient={sender === username}>
                       <ChatText>{message}</ChatText>
                       <MessageTime>
@@ -190,14 +197,8 @@ const Widget = ({ onClose }) => {
               </ChatDiv>
             ))}
           </TextArea>
-          <div style={{ display: 'flex' }}>
-            <input
-              style={{
-                flex: '1',
-                padding: '10px',
-                borderRadius: '5px',
-                border: '1px solid #ccc',
-              }}
+          
+            <WidgetInput
               value={message}
               onChange={e => setMessage(e.target.value)}
               placeholder="Введите сообщение"
@@ -205,8 +206,8 @@ const Widget = ({ onClose }) => {
             <SendBtn onClick={sendMessage}>
               <IconButton />
             </SendBtn>
-          </div>
-        </div>
+          
+        </WrapArea>
       )}
     </WidgetCon>
   );

@@ -4,7 +4,7 @@ import { IoRemoveOutline } from "react-icons/io5";
 import { IoSendOutline } from "react-icons/io5";
 
 export const WidgetCon = styled.div`
-width: 350px;
+width: 340px;
 height:600px;
 background-color: #fff;
 border:1px solid #ccc;
@@ -15,7 +15,7 @@ right: 400px;
 display: flex;
 flex-direction: column;
 align-items: center;
-border-radius: 2%;
+border-radius: 15px;
 `;
 
 export const ChatName = styled.h2`
@@ -49,20 +49,26 @@ height:25px;
 `;
 
 export const TextArea = styled.div`
-width:352px;
-background-color: #f2f2f2;
-border: 1px solid #ccc;
+width:340px;
 height:530px;
 overflow-y: auto;
 box-sizing: border-box;
+scrollbar-width:thin;
+`;
+
+export const WrapArea = styled.div`
+  display:flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 `;
 
 
 export const SendBtn = styled.button`
 width: 35px;
 height: 20px;
-right: 15px;
-  bottom: 10px;
+right: 25px;
+  bottom: 20px;
 
   border-radius: 5px;
   border: none;
@@ -103,8 +109,8 @@ word-wrap: break-word;
  export const MessageBox = styled.div`
   padding: 10px;
   border-radius: 5px;
-  border: 1px solid #DFDAEB;
-  background-color: ${({ isClient }) => (isClient ? '#EFE9FF' : 'transparent')};
+  border: 1px solid #B7B0C7;
+  background-color: ${({ isClient }) => (isClient ? 'transparent' : '#EFE9FF')};
 `;
 
 export const MessageWrap = styled.div`
@@ -133,7 +139,7 @@ display: flex;
 width: 330px;
 height: 40px;
 align-items: center;
-justify-content: space-between;
+justify-content: flex-end;
 `;
 
 export const CloseButton = styled(RxCross2)`
@@ -158,4 +164,21 @@ cursor: pointer;
     color: gray;
   }
 
+`;
+
+export const ClientInfoWrap = styled.div`
+width: 200px;
+height: 112px;
+border-radius: 10px;
+background-color: #FFFFFF;
+box-shadow: 0px 0px 12.2px 0px #0000001C;
+margin-left: 70px;
+`;
+
+export const WidgetInput = styled.input`
+width: 300px;
+height: 30px;
+border-radius: 10px;
+border: 1px solid #B7B0C7;
+margin-bottom:20px;
 `;
