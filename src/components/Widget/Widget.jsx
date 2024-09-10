@@ -2,18 +2,18 @@ import React, { useState, useEffect } from 'react';
 
 import {
   WidgetCon,
-  ChatName,
+  
   JoinWrap,
   WidgetInputName,
   JoinButton,
   TextArea,
   SendBtn,
-  IconButton,
+  
   ChatText,
   MessageBox,
   ChatDiv,
   MessageWrap,
-  UserImg,
+  
   MessageTime,
   InfoWrap,
   CloseButton,
@@ -24,6 +24,10 @@ import {
   WidgetSettingsIcon,
   WidgetUserName,
   WidgetUserInf,
+  ClientInfoCont,
+  SendBtnFile,
+  FileInpIconWrapper,
+  
 } from './Widget.styled';
 import { socket } from '../../services/API'; // Убедитесь, что у вас правильно настроен путь
 
@@ -34,32 +38,40 @@ const Widget = ({ onClose }) => {
   const [messages, setMessages] = useState([]);
   const [isJoined, setIsJoined] = useState(false);
   const [roomId, setRoomId] = useState('');
+  const [manager, setManager] = useState('');
 
 
   useEffect(() => {
-    console.log('Socket:', socket);
-
     if (!socket) return;
 
     const savedUsername = sessionStorage.getItem('username');
     const savedUsermail = sessionStorage.getItem('usermail');
     const savedRoomId = sessionStorage.getItem('roomId');
     const savedMessages = JSON.parse(sessionStorage.getItem('messages')) || [];
+    const savedManager = sessionStorage.getItem('manager'|| '');
+
+
 
     if (savedRoomId) {
-      console.log('Rejoining room:', savedRoomId);
+      console.log('Rejoining room:', savedRoomId );
       setUsername(savedUsername);
       setUsermail(savedUsermail);
       setRoomId(savedRoomId);
       setMessages(savedMessages);
       setIsJoined(true);
-
+      setManager(savedManager);
       socket.emit('rejoin_user', { roomId: savedRoomId });
 
       socket.on('roomRejoined', () => {
         console.log('Successfully rejoined room:', savedRoomId);
       });
     }
+
+    socket.on('manager_assigned', (managerData) => {
+      console.log('Назначен менеджер:', managerData);
+      setManager(managerData.username); 
+      sessionStorage.setItem('manager', managerData.username);
+    });
 
     socket.on('receive_message', message => {
       console.log('Received new message:', message);
@@ -73,6 +85,7 @@ const Widget = ({ onClose }) => {
     return () => {
       socket.off('receive_message');
       socket.off('roomRejoined');
+      socket.off('manager_assigned');
     };
   }, [socket]);
 
@@ -112,7 +125,7 @@ const Widget = ({ onClose }) => {
 
       // Убедитесь, что идентификатор комнаты получен и сохранен правильно
       socket.on('roomCreated', roomId => {
-        console.log('Room created:', roomId);
+        console.log('Room created:', roomId, socket);
         setRoomId(roomId); // Установите идентификатор комнаты в состоянии
         setIsJoined(true); // Устанавливаем состояние присоединения
         sessionStorage.setItem('username', username.trim());
@@ -122,6 +135,7 @@ const Widget = ({ onClose }) => {
       });
     }
   };
+  
 
   const sendMessage = () => {
     if (message.trim() !== '') {
@@ -149,12 +163,12 @@ const Widget = ({ onClose }) => {
   const handleCollapse = () => {
     onClose();
   };
-  
 
   return (
-    <WidgetCon>
-      <InfoWrap>
-        <WidgetSettingsIcon/>
+    <WidgetCon >
+      <InfoWrap isJoined={isJoined}>
+        <WidgetSettingsIcon />
+        {manager}
         <div>
           <CollapseButton onClick={handleCollapse} />
           <CloseButton onClick={handleDisconnectChat} />
@@ -177,21 +191,21 @@ const Widget = ({ onClose }) => {
         </JoinWrap>
       ) : (
         <WrapArea>
-          
           <TextArea>
-          <ClientInfoWrap>
-            <WidgetUserName>Name:</WidgetUserName>
-            <WidgetUserInf>{username}</WidgetUserInf>
-            <WidgetUserName>E-mail:</WidgetUserName>
-            <WidgetUserInf>{usermail}</WidgetUserInf>
-          </ClientInfoWrap>
+            <ClientInfoWrap>
+              <ClientInfoCont>
+                <WidgetUserName>Name:</WidgetUserName>
+                <WidgetUserInf>{username}</WidgetUserInf>
+              </ClientInfoCont>
+              <ClientInfoCont>
+                <WidgetUserName>E-mail:</WidgetUserName>
+                <WidgetUserInf>{usermail}</WidgetUserInf>
+              </ClientInfoCont>
+            </ClientInfoWrap>
             {messages.map(({ sender, message, timestamp }, index) => (
               <ChatDiv key={index} isClient={sender === username}>
                 <MessageWrap isClient={sender === username}>
-                  {/* Замените этот блок с учетом вашей логики для отображения фотографий */}
                   <div>
-                    {sender}
-                    
                     <MessageBox isClient={sender === username}>
                       <ChatText>{message}</ChatText>
                       <MessageTime>
@@ -203,16 +217,29 @@ const Widget = ({ onClose }) => {
               </ChatDiv>
             ))}
           </TextArea>
+
+          <WidgetInput
+            value={message}
+            onChange={e => setMessage(e.target.value)}
+            placeholder="Введите сообщение"
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                sendMessage();  
+                e.preventDefault(); 
+              }
+            }}
+          />
           
-            <WidgetInput
-              value={message}
-              onChange={e => setMessage(e.target.value)}
-              placeholder="Введите сообщение"
-            />
-            <SendBtn onClick={sendMessage}>
-              <IconButton />
-            </SendBtn>
-          
+          <SendBtnFile
+            type="file"
+            id="fileUpload"
+            name="file"
+            multiple
+          />
+          <FileInpIconWrapper htmlFor="fileUpload"/>
+          <SendBtn onClick={sendMessage}/>
+           
+         
         </WrapArea>
       )}
     </WidgetCon>

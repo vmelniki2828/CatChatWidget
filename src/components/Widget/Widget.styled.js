@@ -1,10 +1,10 @@
 import styled from 'styled-components';
 import { RxCross2 } from "react-icons/rx";
 import { IoRemoveOutline } from "react-icons/io5";
-import { IoSendOutline } from "react-icons/io5";
+
 import { BsThreeDots } from "react-icons/bs";
-
-
+import uploadIcon from '../../images/sendPic.png'; 
+import sendImg from '../../images/sendMess.png';
 export const WidgetCon = styled.div`
 width: 340px;
 height:650px;
@@ -30,6 +30,7 @@ export const JoinWrap = styled.div`
 display: flex;
 flex-direction: column;
 align-items: center;
+padding-top: 65px;
 `;
 
 export const WidgetInputName = styled.input`
@@ -67,31 +68,46 @@ export const WrapArea = styled.div`
 
 
 export const SendBtn = styled.button`
-width: 35px;
-height: 20px;
+ width: 16px;
+ height: 16px;
 right: 25px;
-  bottom: 26px;
-
-  border-radius: 5px;
+  bottom: 29px;
   border: none;
-  background-color: #0A1019;
-  color: #fff;
+  background: url(${sendImg}) no-repeat center;
+  background-size: cover;
   cursor: pointer;
   display:flex;
   align-items: center;
   justify-content: center;
   position:absolute;
 `;
- export const IconButton = styled(IoSendOutline)`
- width: 20px;
-height: 16px;
-padding-left:5px;
-color: white;
- `;
+
+
+export const SendBtnFile = styled.input`
+opacity: 0;
+display: none;
+  visibility: hidden;
+  position: absolute;
+`;
+
+
+export const FileInpIconWrapper = styled.label`
+ cursor: pointer;
+ width: 16px;
+ height: 16px;
+  background: url(${uploadIcon}) no-repeat center;
+  background-size: cover;
+  display: inline-block;
+  position:absolute;
+  right: 51px;
+  bottom: 29px;
+`;
+
+
 
  export const ChatText = styled.p`
  font-family: 'Geologica';
-font-size: 12px;
+font-size: 14px;
 font-weight: 300;
 line-height: 15px;
 text-align: left;
@@ -111,8 +127,9 @@ word-wrap: break-word;
  export const MessageBox = styled.div`
   padding: 10px;
   border-radius: 5px;
-  border: 1px solid #B7B0C7;
+  border: ${({ isClient }) => (isClient ? '1px solid #B7B0C7' : 'none')};
   background-color: ${({ isClient }) => (isClient ? 'transparent' : '#EFE9FF')};
+  margin:${({ isClient }) => (isClient ? '0px 10px 10px 0' : '0px 0px 0px 10px;')};
 `;
 
 export const MessageWrap = styled.div`
@@ -139,10 +156,11 @@ text-align: right;
 export const InfoWrap = styled.div`
 display: flex;
 width: 330px;
-height: 150px;
+height: ${({ isJoined }) => (isJoined ? '150px' : '30px')};
 align-items: center;
 justify-content: space-between;
 border-bottom: 1px solid #B7B0C7;
+
 `;
 
 export const CloseButton = styled(RxCross2)`
@@ -176,6 +194,15 @@ border-radius: 10px;
 background-color: #FFFFFF;
 box-shadow: 0px 0px 12.2px 0px #0000001C;
 margin-left: 70px;
+display: flex;
+flex-direction: column;
+justify-content: center;
+margin-top:20px;
+`;
+
+export const ClientInfoCont = styled.div`
+margin-bottom: 10px;
+margin-left:20px;
 `;
 
 export const WidgetInput = styled.input`
@@ -194,20 +221,20 @@ export const WidgetUserName = styled.p`
 font-family: 'Geologica';
 font-style: normal;
 font-weight: 400;
-font-size: 10px;
+font-size: 15px;
 line-height: 12px;
 color: #B7B0C7;
-
-
+margin:0;
+margin-bottom: 5px;
 `;
 
 export const WidgetUserInf = styled.p`
 font-family: 'Geologica';
 font-style: normal;
 font-weight: 300;
-font-size: 10px;
+font-size: 17px;
 line-height: 12px;
-
+margin:0;
 color: #0A1019;
 
 `;
