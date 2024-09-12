@@ -22,6 +22,10 @@ module.exports = {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
       },
+      {
+        test: /\.(png|jpg|gif|svg)$/, // Для изображений
+        type: 'asset/resource', // Webpack 5 встроенный загрузчик
+      },
     ],
   },
   resolve: {
