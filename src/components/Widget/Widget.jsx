@@ -62,10 +62,14 @@ const Widget = ({ onClose }) => {
       setManager(savedManager);
       socket.emit('rejoin_user', { roomId: savedRoomId });
 
-      socket.on('roomRejoined', () => {
+      socket.on('roomRejoined', (messages) => {
         console.log('Successfully rejoined room:', savedRoomId);
-      });
-    }
+          setMessages(messages);
+          sessionStorage.setItem('messages', JSON.stringify(messages));
+        });
+      }
+ 
+  
 
     socket.on('manager_assigned', (managerData) => {
       console.log('Назначен менеджер:', managerData);
@@ -89,6 +93,7 @@ const Widget = ({ onClose }) => {
     };
   }, [socket]);
 
+  
   const getUserData = async () => {
     const userAgent = navigator.userAgent;
     const language = navigator.language;
