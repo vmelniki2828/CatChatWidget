@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 
-export const socket = io('https://chat.cat-tools.com', {
+export const socket = io('http://localhost:8000', {
   transports: ['websocket', 'polling'],
   withCredentials: true,
   reconnection: true, // Включает автоматическое восстановление соединения
