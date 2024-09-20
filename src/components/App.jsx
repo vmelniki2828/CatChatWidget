@@ -1,5 +1,8 @@
-import Widget from './Widget/Widget';
+import React from 'react';
+import WidgetIcon from '../components/Widget/WidgetIcon';
 
-export const App = () => {
-  return <Widget />;
+const App = () => {
+  return <WidgetIcon />;
 };
+
+export default App; 
