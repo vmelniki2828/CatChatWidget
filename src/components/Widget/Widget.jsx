@@ -38,6 +38,7 @@ const Widget = ({ onClose }) => {
   const [messages, setMessages] = useState([]);
   const [isJoined, setIsJoined] = useState(false);
   const [roomId, setRoomId] = useState('');
+
   const [manager, setManager] = useState('');
 
 
@@ -122,7 +123,6 @@ const Widget = ({ onClose }) => {
         email: usermail.trim(),
         otherInfo: userData,
       });
-
       // Убедитесь, что идентификатор комнаты получен и сохранен правильно
       socket.on('roomCreated', roomId => {
         console.log('Room created:', roomId, socket);
@@ -133,6 +133,7 @@ const Widget = ({ onClose }) => {
         sessionStorage.setItem('roomId', roomId);
         sessionStorage.setItem('messages', JSON.stringify([]));
       });
+      setIsJoined(true);
     }
   };
   
