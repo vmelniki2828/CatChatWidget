@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
+import axios from 'axios';
 import {
   WidgetCon,
   
@@ -39,7 +39,7 @@ const Widget = ({ onClose }) => {
   const [isJoined, setIsJoined] = useState(false);
   const [roomId, setRoomId] = useState('');
   const [manager, setManager] = useState('');
-
+  const [file, setFile] = useState(null);
 
   useEffect(() => {
     if (!socket) return;
@@ -164,6 +164,41 @@ const Widget = ({ onClose }) => {
     onClose();
   };
 
+
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]); // Устанавливаем выбранный файл
+  };
+
+  const handleFileUpload = async () => {
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('roomId', roomId);
+
+      try {
+        const response = await axios.post('http://localhost:8000/api/upload-file', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        console.log('Файл успешно загружен:', response.data);
+        setFile(null);
+      } catch (err) {
+        console.error('Ошибка при загрузке файла:', err);
+        setFile(null);
+      }
+    }
+  };
+  const handleSend = () => {
+    if (file) {
+      // Если выбран файл, загружаем файл
+      handleFileUpload();
+    } else if (message.trim() !== '') {
+      // Если файла нет, отправляем сообщение
+      sendMessage();
+    }
+  };
+
   return (
     <WidgetCon >
       <InfoWrap isJoined={isJoined}>
@@ -224,7 +259,7 @@ const Widget = ({ onClose }) => {
             placeholder="Введите сообщение"
             onKeyDown={e => {
               if (e.key === 'Enter') {
-                sendMessage();  
+                handleSend();  
                 e.preventDefault(); 
               }
             }}
@@ -235,9 +270,10 @@ const Widget = ({ onClose }) => {
             id="fileUpload"
             name="file"
             multiple
+            onChange={handleFileChange} 
           />
           <FileInpIconWrapper htmlFor="fileUpload"/>
-          <SendBtn onClick={sendMessage}/>
+          <SendBtn onClick={handleSend}/>
            
          
         </WrapArea>
