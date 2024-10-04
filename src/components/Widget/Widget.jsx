@@ -2,18 +2,15 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
   WidgetCon,
-  
   JoinWrap,
   WidgetInputName,
   JoinButton,
   TextArea,
   SendBtn,
-  
   ChatText,
   MessageBox,
   ChatDiv,
   MessageWrap,
-  
   MessageTime,
   InfoWrap,
   CloseButton,
@@ -27,7 +24,6 @@ import {
   ClientInfoCont,
   SendBtnFile,
   FileInpIconWrapper,
-  
 } from './Widget.styled';
 import { socket } from '../../services/API'; // Убедитесь, что у вас правильно настроен путь
 
@@ -48,12 +44,10 @@ const Widget = ({ onClose }) => {
     const savedUsermail = sessionStorage.getItem('usermail');
     const savedRoomId = sessionStorage.getItem('roomId');
     const savedMessages = JSON.parse(sessionStorage.getItem('messages')) || [];
-    const savedManager = sessionStorage.getItem('manager'|| '');
-
-
+    const savedManager = sessionStorage.getItem('manager' || '');
 
     if (savedRoomId) {
-      console.log('Rejoining room:', savedRoomId );
+      console.log('Rejoining room:', savedRoomId);
       setUsername(savedUsername);
       setUsermail(savedUsermail);
       setRoomId(savedRoomId);
@@ -67,19 +61,18 @@ const Widget = ({ onClose }) => {
       });
     }
 
-    socket.on('manager_assigned', (managerData) => {
+    socket.on('manager_assigned', managerData => {
       console.log('Назначен менеджер:', managerData);
-      setManager(managerData.username); 
+      setManager(managerData.username);
       sessionStorage.setItem('manager', managerData.username);
     });
 
     socket.on('receive_message', message => {
       console.log('Received new message:', message);
-      setMessages(prevMessages => {
-        const updatedMessages = [...prevMessages, message];
-        sessionStorage.setItem('messages', JSON.stringify(updatedMessages));
-        return updatedMessages;
-      });
+      setMessages(message);
+
+      console.log(message);
+      sessionStorage.setItem('messages', JSON.stringify(message));
     });
 
     return () => {
@@ -135,7 +128,6 @@ const Widget = ({ onClose }) => {
       });
     }
   };
-  
 
   const sendMessage = () => {
     if (message.trim() !== '') {
@@ -164,8 +156,7 @@ const Widget = ({ onClose }) => {
     onClose();
   };
 
-
-  const handleFileChange = (e) => {
+  const handleFileChange = e => {
     setFile(e.target.files[0]); // Устанавливаем выбранный файл
   };
 
@@ -176,11 +167,15 @@ const Widget = ({ onClose }) => {
       formData.append('roomId', roomId);
 
       try {
-        const response = await axios.post('http://localhost:8000/api/upload-file', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
+        const response = await axios.post(
+          'http://localhost:8000/api/upload-file',
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
         console.log('Файл успешно загружен:', response.data);
         setFile(null);
       } catch (err) {
@@ -200,7 +195,7 @@ const Widget = ({ onClose }) => {
   };
 
   return (
-    <WidgetCon >
+    <WidgetCon>
       <InfoWrap isJoined={isJoined}>
         <WidgetSettingsIcon />
         {manager}
@@ -237,7 +232,7 @@ const Widget = ({ onClose }) => {
                 <WidgetUserInf>{usermail}</WidgetUserInf>
               </ClientInfoCont>
             </ClientInfoWrap>
-            {messages.map(({ sender, message, timestamp }, index) => (
+            {messages?.messages?.map(({ sender, message, timestamp }, index) => (
               <ChatDiv key={index} isClient={sender === username}>
                 <MessageWrap isClient={sender === username}>
                   <div>
@@ -259,23 +254,21 @@ const Widget = ({ onClose }) => {
             placeholder="Введите сообщение"
             onKeyDown={e => {
               if (e.key === 'Enter') {
-                handleSend();  
-                e.preventDefault(); 
+                handleSend();
+                e.preventDefault();
               }
             }}
           />
-          
+
           <SendBtnFile
             type="file"
             id="fileUpload"
             name="file"
             multiple
-            onChange={handleFileChange} 
+            onChange={handleFileChange}
           />
-          <FileInpIconWrapper htmlFor="fileUpload"/>
-          <SendBtn onClick={handleSend}/>
-           
-         
+          <FileInpIconWrapper htmlFor="fileUpload" />
+          <SendBtn onClick={handleSend} />
         </WrapArea>
       )}
     </WidgetCon>
