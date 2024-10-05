@@ -238,3 +238,12 @@ margin:0;
 color: #0A1019;
 
 `;
+
+export const FileWrap = styled.div`
+position: absolute;
+bottom: 50px;
+width: 330px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+`;

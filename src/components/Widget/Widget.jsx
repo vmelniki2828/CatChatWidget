@@ -24,6 +24,7 @@ import {
   ClientInfoCont,
   SendBtnFile,
   FileInpIconWrapper,
+  FileWrap,
 } from './Widget.styled';
 import { socket } from '../../services/API'; // Убедитесь, что у вас правильно настроен путь
 
@@ -36,6 +37,7 @@ const Widget = ({ onClose }) => {
   const [roomId, setRoomId] = useState('');
   const [manager, setManager] = useState('');
   const [file, setFile] = useState(null);
+  const [previewURL, setPreviewURL] = useState(null);
 
   useEffect(() => {
     if (!socket) return;
@@ -156,34 +158,50 @@ const Widget = ({ onClose }) => {
     onClose();
   };
 
-  const handleFileChange = e => {
-    setFile(e.target.files[0]); // Устанавливаем выбранный файл
-  };
+const handleFileChange = e => {
+  const selectedFile = e.target.files[0];
+  setFile(selectedFile);
 
-  const handleFileUpload = async () => {
-    if (file) {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('roomId', roomId);
+  // Если выбран файл, создаем его временный URL для предварительного просмотра
+  if (selectedFile) {
+    const fileURL = URL.createObjectURL(selectedFile);
+    setPreviewURL(fileURL);
+  }
+};
+const handleRemoveFile = () => {
+  setFile(null);
+  setPreviewURL(null);
+};
 
-      try {
-        const response = await axios.post(
-          'http://localhost:8000/api/upload-file',
-          formData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          }
-        );
-        console.log('Файл успешно загружен:', response.data);
-        setFile(null);
-      } catch (err) {
-        console.error('Ошибка при загрузке файла:', err);
-        setFile(null);
-      }
+const handleFileUpload = async () => {
+  if (file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('roomId', roomId);
+
+    try {
+      const response = await axios.post(
+        'http://localhost:8000/api/upload-file',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      console.log('Файл успешно загружен:', response.data);
+      
+      // Очистить файл и предварительный просмотр после успешной загрузки
+      setFile(null);
+      setPreviewURL(null);
+    } catch (err) {
+      console.error('Ошибка при загрузке файла:', err);
+      setFile(null);
+      setPreviewURL(null); // Очистить предварительный просмотр
     }
-  };
+  }
+};
+
   const handleSend = () => {
     if (file) {
       // Если выбран файл, загружаем файл
@@ -246,7 +264,14 @@ const Widget = ({ onClose }) => {
                 </MessageWrap>
               </ChatDiv>
             ))}
+          
           </TextArea>
+          {previewURL && (
+  <FileWrap>
+  <p>{file.name}</p>
+    <CloseButton onClick={handleRemoveFile} />
+  </FileWrap>
+)}
 
           <WidgetInput
             value={message}
