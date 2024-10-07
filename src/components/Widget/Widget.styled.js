@@ -246,4 +246,17 @@ width: 330px;
 display: flex;
 justify-content: space-between;
 align-items: center;
+flex-direction: column;
+`;
+
+export const FileCon = styled.div`
+display: flex;
+justify-content: space-between;
+align-items: center;
+width: 330px;
+`;
+
+export const FileImg = styled.img`
+width: 200px;
+height:180px;
 `;

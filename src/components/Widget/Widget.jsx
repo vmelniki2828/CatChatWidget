@@ -25,6 +25,8 @@ import {
   SendBtnFile,
   FileInpIconWrapper,
   FileWrap,
+  FileCon,
+  FileImg,
 } from './Widget.styled';
 import { socket } from '../../services/API'; // Убедитесь, что у вас правильно настроен путь
 
@@ -36,8 +38,10 @@ const Widget = ({ onClose }) => {
   const [isJoined, setIsJoined] = useState(false);
   const [roomId, setRoomId] = useState('');
   const [manager, setManager] = useState('');
-  const [file, setFile] = useState(null);
-  const [previewURL, setPreviewURL] = useState(null);
+  const [files, setFiles] = useState([]);
+  const [previewURLs, setPreviewURLs] = useState([]);
+
+
 
   useEffect(() => {
     if (!socket) return;
@@ -158,59 +162,99 @@ const Widget = ({ onClose }) => {
     onClose();
   };
 
-const handleFileChange = e => {
-  const selectedFile = e.target.files[0];
-  setFile(selectedFile);
+  // const handleFileChange = (e) => {
+  //   const selectedFiles = Array.from(e.target.files); // Преобразуем FileList в массив
+  //   setFiles(selectedFiles);
+  
+  //   // Создаем URL для предварительного просмотра каждого файла
+  //   const fileURLs = selectedFiles.map((file) => URL.createObjectURL(file));
+  //   setPreviewURLs(fileURLs);
+  // };
+  
+  const handleRemoveFile = (index) => {
+    const newFiles = files.filter((_, i) => i !== index);
+    const newPreviewURLs = previewURLs.filter((_, i) => i !== index);
+    setFiles(newFiles);
+    setPreviewURLs(newPreviewURLs);
+  };
+  
 
-  // Если выбран файл, создаем его временный URL для предварительного просмотра
-  if (selectedFile) {
-    const fileURL = URL.createObjectURL(selectedFile);
-    setPreviewURL(fileURL);
-  }
-};
-const handleRemoveFile = () => {
-  setFile(null);
-  setPreviewURL(null);
-};
+  // const handleFileUpload = async () => {
+  //   for (const file of files) {
+  //     const formData = new FormData();
+  //     formData.append('file', file);
+  //     formData.append('roomId', roomId);
+  
+  //     try {
+  //       const response = await axios.post(
+  //         'http://localhost:8000/api/upload-file',
+  //         formData,
+  //         {
+  //           headers: {
+  //             'Content-Type': 'multipart/form-data',
+  //           },
+  //         }
+  //       );
+  //       console.log('Файл успешно загружен:', response.data);
+  //     } catch (err) {
+  //       console.error('Ошибка при загрузке файла:', err);
+  //     }
+  //   }
+  
+  //   // Очистить файлы и предварительный просмотр после успешной загрузки
+  //   setFiles([]);
+  //   setPreviewURLs([]);
+  // };
+  const sendFile = (file) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const arrayBuffer = reader.result;
+      socket.emit('send_file', { roomId, fileName: file.name, fileData: arrayBuffer });
+    };
+    reader.readAsArrayBuffer(file);
+  };
 
-const handleFileUpload = async () => {
-  if (file) {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('roomId', roomId);
-
-    try {
-      const response = await axios.post(
-        'http://localhost:8000/api/upload-file',
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
-      console.log('Файл успешно загружен:', response.data);
-      
-      // Очистить файл и предварительный просмотр после успешной загрузки
-      setFile(null);
-      setPreviewURL(null);
-    } catch (err) {
-      console.error('Ошибка при загрузке файла:', err);
-      setFile(null);
-      setPreviewURL(null); // Очистить предварительный просмотр
-    }
-  }
-};
+  const handleFileChange = (e) => {
+    const selectedFiles = Array.from(e.target.files);
+    setFiles(selectedFiles);
+    const fileURLs = selectedFiles.map((file) => URL.createObjectURL(file));
+    setPreviewURLs(fileURLs);
+    selectedFiles.forEach(file => sendFile(file)); // Отправляем файлы сразу после выбора
+  };
 
   const handleSend = () => {
-    if (file) {
-      // Если выбран файл, загружаем файл
-      handleFileUpload();
-    } else if (message.trim() !== '') {
-      // Если файла нет, отправляем сообщение
+    if (message.trim() !== '') {
       sendMessage();
     }
+    setFiles([]);
+    setPreviewURLs([]);
   };
+
+  
+
+  const handlePaste = (e) => {
+    const clipboardItems = e.clipboardData.items;
+  
+    // Проходим по элементам буфера обмена
+    for (let i = 0; i < clipboardItems.length; i++) {
+      const item = clipboardItems[i];
+  
+      // Проверяем, является ли элемент изображением
+      if (item.type.includes('image')) {
+        const file = item.getAsFile();
+        if (file) {
+          // Добавляем изображение в список файлов
+          const newFiles = [...files, file];
+          setFiles(newFiles);
+  
+          // Создаем URL для предварительного просмотра
+          const fileURL = URL.createObjectURL(file);
+          setPreviewURLs([...previewURLs, fileURL]);
+        }
+      }
+    }
+  };
+  
 
   return (
     <WidgetCon>
@@ -250,11 +294,24 @@ const handleFileUpload = async () => {
                 <WidgetUserInf>{usermail}</WidgetUserInf>
               </ClientInfoCont>
             </ClientInfoWrap>
-            {messages?.messages?.map(({ sender, message, timestamp }, index) => (
+            {messages?.messages?.map(({ sender, message, fileUrl,timestamp }, index) => (
               <ChatDiv key={index} isClient={sender === username}>
                 <MessageWrap isClient={sender === username}>
                   <div>
                     <MessageBox isClient={sender === username}>
+                    {fileUrl && (
+            <>
+             
+              {fileUrl.match(/\.(jpeg|jpg|gif|png|HEIC)$/) ? (
+                <FileImg src={fileUrl} alt="Загруженный файл" />
+              ) : (
+                /* Если это не картинка, даём ссылку для скачивания */
+                <a href={fileUrl} download>
+                  Скачать файл
+                </a>
+              )}
+            </>
+          )}
                       <ChatText>{message}</ChatText>
                       <MessageTime>
                         {new Date(timestamp).toLocaleTimeString()}
@@ -266,12 +323,17 @@ const handleFileUpload = async () => {
             ))}
           
           </TextArea>
-          {previewURL && (
+          {previewURLs.length > 0 && (
   <FileWrap>
-  <p>{file.name}</p>
-    <CloseButton onClick={handleRemoveFile} />
+    {previewURLs.map((url, index) => (
+      <FileCon key={index}>
+        <p>{files[index].name}</p>
+        <CloseButton onClick={() => handleRemoveFile(index)} />
+      </FileCon>
+    ))}
   </FileWrap>
 )}
+
 
           <WidgetInput
             value={message}
@@ -283,6 +345,7 @@ const handleFileUpload = async () => {
                 e.preventDefault();
               }
             }}
+            onPaste={handlePaste}
           />
 
           <SendBtnFile
