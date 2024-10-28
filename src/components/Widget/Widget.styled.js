@@ -260,3 +260,16 @@ export const FileImg = styled.img`
 width: 200px;
 height:180px;
 `;
+
+export const LoadingCon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  border: 1px solid #DFDAEB;
+  background-color: #EFE9FF;
+  height: 30px;
+  width: 60px;
+  margin-right: 245px;
+  margin-bottom: 5px;
+`;

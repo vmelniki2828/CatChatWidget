@@ -27,7 +27,9 @@ import {
   FileWrap,
   FileCon,
   FileImg,
+  LoadingCon,
 } from './Widget.styled';
+import { ThreeDots } from 'react-loader-spinner';
 import { socket } from '../../services/API'; // Убедитесь, что у вас правильно настроен путь
 
 const Widget = ({ onClose }) => {
@@ -41,7 +43,9 @@ const Widget = ({ onClose }) => {
   const [files, setFiles] = useState([]);
   const [previewURLs, setPreviewURLs] = useState([]);
   const [file, setFile] = useState('');
-
+  const [isTyping, setIsTyping] = useState(false);
+  const [typingUser, setTypingUser] = useState(false);
+  let typingTimeout;
   useEffect(() => {
     if (!socket) return;
 
@@ -162,6 +166,41 @@ const Widget = ({ onClose }) => {
     }
   };
 
+  useEffect(() => {
+    // Обработка события "user_typing"
+    socket.on("user_typing", ({ roomId, username }) => {
+      setTypingUser(true);
+    });
+
+    // Обработка события "user_stopped_typing"
+    socket.on("user_stopped_typing", ({ roomId,username }) => {
+      setTypingUser(false);
+    });
+
+    return () => {
+      socket.off("user_typing");
+      socket.off("user_stopped_typing");
+    };
+  }, []);
+
+  const handleTyping = (e) => {
+    setMessage(e.target.value);
+  
+    // Если пользователь начинает печатать и событие "typing" еще не отправлено
+    if (!isTyping) {
+      setIsTyping(true);
+      socket.emit("typing", { roomId:roomId, username:username });
+    }
+  
+    // Очищаем таймер для "stop_typing"
+    clearTimeout(typingTimeout);
+  
+    // Запускаем новый таймер на 2 секунды, после которого отправляется событие "stop_typing"
+    typingTimeout = setTimeout(() => {
+      setIsTyping(false);
+      socket.emit("stop_typing", { roomId:roomId, username:username });
+    }, 2000);
+  };
   const handleDisconnectChat = async () => {
     if (roomId) {
       socket.emit('disconnect_chat', roomId);
@@ -235,6 +274,16 @@ const Widget = ({ onClose }) => {
               )
             )}
           </TextArea>
+          {typingUser && (<LoadingCon>
+          <ThreeDots
+            height="10"
+            width="30"
+            radius="9"
+            color="grey"
+            ariaLabel="three-dots-loading"
+            visible={true}
+          />
+          </LoadingCon>)}
           {previewURLs.length > 0 && (
             <FileWrap>
               {/* {previewURLs.map((url, index) => (
@@ -248,7 +297,7 @@ const Widget = ({ onClose }) => {
 
           <WidgetInput
             value={message}
-            onChange={e => setMessage(e.target.value)}
+            onChange={handleTyping}
             placeholder="Введите сообщение"
             onKeyDown={e => {
               if (e.key === 'Enter') {
